@@ -1,0 +1,65 @@
+#Task was done in Jupyter notebook using Python version 3.7
+from bs4 import BeautifulSoup
+#Chrome driver version 74.0.3729.6
+from selenium import webdriver
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.by import By
+
+
+#Run the code.Selenium controls chrome and opens the page url.
+option=webdriver.ChromeOptions()
+option.add_argument("--incognito")
+driver=webdriver.Chrome(executable_path="C:/Users/Lenovo/Downloads/chromedriver_win32/chromedriver.exe",options=option)
+url="https://www.nseindia.com/products/content/equities/equities/eq_security.htm"
+driver.maximize_window()
+driver.get(url)
+
+#Using selenium driver we transfer the required data to the fields by accessing the xpath in the html. Actions are performed automatically
+#and values are fetched.
+value='YES BANK'
+#accessing xtype of the input field:Enter Symbol
+test1=driver.find_element_by_xpath('//*[@id="symbol"]').send_keys(value)
+#accessing xtype of the dropdwon field:Select Series
+dropdown1=driver.find_element_by_xpath('//*[@id="series"]')
+#accessing xtype of the dropdown field:For past
+dropdown2=driver.find_element_by_xpath('//*[@id="dateRange"]')
+#selecting the fields by using Select fucntion of the selenium webdriver package.
+select1=Select(dropdown1)
+select1.select_by_visible_text('EQ')
+select2=Select(dropdown2)
+select2.select_by_visible_text('3 months')
+driver.find_element_by_xpath('//*[@id="get"]').click()
+
+
+
+#Run the code
+#Once the page is loaded and the data is obtained,it uses beautiful soup of Python to fetch the html of the page.
+soup=BeautifulSoup(driver.page_source)
+
+
+#Run the code
+#searches for the table tag in the html.
+table = soup.find('table')
+#using col variable to iterate through all the columns (th tags) in the table.
+columns=[col.text.strip() for col in table.findAll('th')]
+print(columns)
+#Creating an empty list
+data = []
+#using row variable to iterate through all the cells (td tags) in the table.(885 cells)
+rows = [row.text.strip() for row in table.findAll('td')]
+i=0
+#storing the number of columns(15 columns)
+num_cols=len(columns)
+#getting the total number of rows and looping through all the cells within the range of the number of rows(59 rows)
+for _ in range(len(rows)//num_cols):
+#using dictionary to store the column data(key) and then the row values(15 values/cells in each row)
+    rowdict=dict(zip(columns, rows[i:i+num_cols]))
+#iterating through the cells by moving to the next row
+    i += num_cols
+#appending the dictionary to the list
+    data.append(rowdict)
+
+#printing the data
+print(len(data))
+for dat in data:
+    print(dat)
